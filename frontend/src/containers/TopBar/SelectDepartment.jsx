@@ -23,7 +23,7 @@ class SelectDepartment extends Component {
 
     constructor(props){
         super(props);
-        this.handleChange = ::this._handleChange;
+        this.handleChange = this._handleChange.bind(this);
     }
 
     state = {

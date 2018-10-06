@@ -1,7 +1,7 @@
 import express from 'express';
 import * as http from 'http';
 import Server from 'socket.io';
-
+import path from 'path';
 import employees from './router/employees';
 import departments from './router/departments';
 import bodyParser from 'body-parser';
@@ -40,9 +40,7 @@ app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/', (req, res) => {
-   res.send('Server is running');
-});
+app.use(express.static(path.resolve(__dirname, '../../dist')));
 
 app.use((req, res, next) => {
    req.io = io;
@@ -50,12 +48,13 @@ app.use((req, res, next) => {
 
 });
 
-app.use('/', auth);
+app.use(auth);
+app.use('/api/v1/employees', isAuth, employees);
+app.use('/api/v1/departments', isAuth, departments);
 
-app.use('/employees', isAuth, employees);
-
-app.use('/departments', isAuth, departments);
-
+app.get('/*', (req, res) => {
+  res.sendfile(path.resolve(__dirname, '../index.html'));
+});
 
 io.on('connection', (client) => {
     console.log('--------------------SOCKET CONNECTED--------------------' + client.id);
@@ -74,21 +73,11 @@ io.on('connection', (client) => {
 
             
     });
-
-    // client.on('departments/fetchDepartmentsSoc', () => {
-    //
-    //     models.Department.findAll()
-    //         .then( data => io.emit('departments/fetchDepartmentsSoc', data))
-    //         .catch(e => next(e) );
-    //
-    // });
-
+    
 });
 
 app.use( (err, req, res, next) => {
-
     res.json( (!Boom.isBoom(err)) ? Boom.boomify(err).errors : err.output.payload );
-
 });
 
 db.sequelize.sync().then( () => {
@@ -98,7 +87,4 @@ db.sequelize.sync().then( () => {
         console.log(`Server is running on http://${hostname}:${port}`);
 
     });
-
-
-
 }).catch( err => err );
