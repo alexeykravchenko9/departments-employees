@@ -58,20 +58,13 @@ app.get('/*', (req, res) => {
 
 io.on('connection', (client) => {
     console.log('--------------------SOCKET CONNECTED--------------------' + client.id);
-
     client.emit('connectionSuccess', { message: 'Socket connected'});
-
     client.on('action', (action) => {
-        
         if (action.type === 'server/fetchDepartments') {
-
             models.Department.findAll()
                 .then( data => io.emit('action', { type:'FETCH_DEPARTMENTS_IO', payLoad: data} ) )
                 .catch(e => next(e) );
-
         }
-
-            
     });
     
 });
