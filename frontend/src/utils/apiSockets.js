@@ -1,5 +1,7 @@
 import openSocket from 'socket.io-client';
-const socket = openSocket(`http://${SERVER_HOSTNAME}:${SERVER_PORT}`);
+let portDev = (process.env.NODE_ENV === 'prod') ? '/' : `:${SERVER_PORT}/`;
+
+const socket = openSocket(`http://${SERVER_HOSTNAME}${portDev}`);
 
 export const fetchDepartmentsSoc = (data) => {
     socket.emit('departments/fetchDepartmentsSoc', data);
